@@ -1,0 +1,117 @@
+body,
+body * {
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+    box-sizing: border-box;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    word-break: break-all;
+}
+
+body {
+    padding: 20px;
+}
+
+.minesweeper {
+    display: inline-block;
+    width: 100%;
+    border: 10px solid #CCC;
+    box-shadow: 0 4px 8px #3338;
+    background-color: #EEE;
+
+    > header {
+        display: inline-block;
+        width: 100%;
+        padding: 5px 10px;
+        text-align: center;
+        border-bottom: 10px solid #CCC;
+
+        > .numbers {
+            display: inline-block;
+            float: left;
+            background-color: #000;
+            color: #F00;
+            font-size: 40px;
+            line-height: 40px;
+            padding: 2px;
+            font-weight: bold;
+
+            &.timer {
+                float: right;
+            }
+        }
+
+        > .status {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+            line-height: 36px;
+            background-color: yellow;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px #3338;
+            transform: rotate(90deg);
+        }
+    }
+
+    > section {
+        display: inline-block;
+        width: 100%;
+
+        > .cell {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            float: left;
+            background-color: #EEE;
+            border: 1px solid #333;
+            position: relative;
+
+            &.open {
+                background-color: #CCC;
+            }
+
+            &.flag::after {
+                content: 'T';
+                display: inline-block;
+                position: relative;
+                top: 0;
+                width: inherit;
+                height: inherit;
+                text-align: center;
+                font-size: 28px;
+                color: red;
+                line-height: 28px;
+            }
+
+            &.bomb {
+
+                &::before {
+                    content: '';
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin: 6px;
+                    background-color: #333;
+                    border-radius: 50%;
+                }
+
+                &.bomb-killer {
+                    background-color: #F00;
+                }
+                &.bomb-wrong::after {
+                    content: 'X';
+                    display: inline-block;
+                    position: relative;
+                    top: -30px;
+                    width: inherit;
+                    height: inherit;
+                    text-align: center;
+                    font-size: 40px;
+                    color: red;
+                    line-height: 24px;
+                }
+            }
+        }
+    }
+}
