@@ -7,10 +7,12 @@ class Minesweeper {
             rows: 10,
             columns: 10
         };
-        this.bombCount = 15;
+        this.map = [];                  // pvz.: [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]
+        this.bombCount = 24;
         this.bombs = [];
         this.timer = 0;
-        this.gameStatus = '';       // start / in-progress / end
+        this.gameStatus = 'start';       // start / in-progress / end
+        this.gameEndType = null;         // happy / death
         this.html_template = {
             layout: `<header>
                         <div class="numbers bombs">099</div>
@@ -54,9 +56,39 @@ class Minesweeper {
 
     cellClick = ( event ) => {
         const cellId = parseInt(event.target.dataset.id);
-        console.log('Cell: ', cellId);
 
-        this.generateBombs( cellId );
+        if ( this.gameStatus === 'start' ) {
+            this.gameStatus = 'in-progress';
+            this.generateBombs( cellId );
+        }
+
+        console.log( this.map );
+        
+
+        if ( this.gameStatus === 'in-progress' ) {
+            // at tailangelis kuris jau buvo atidarytas
+                // tai nedarom nieko
+
+            // tikriname ar paspaudziau ant bombos
+                // taip
+                    // baigiam zaidima:
+                    // sustabdome laikrodi
+                    // pakeiciame zaidimo statusa: end
+                    // parodome/atidengiame visu bombu pozicijas
+                    // parodome neteisingai pazymetas bombas (flags)
+                    // pazymime bomba, per kuria pralaimejom
+                    // gameEndType = death
+                // ne
+                    // tesiam zaidima:
+                    // atidarome einamoji langeli (pridedame class="open")
+                    // suskaiciuoju kiek aplink sita langeli yra bombu
+                    // i ta langeli irasau bombu skaiciu (pridedame class="n-[bombuSkaicius]")
+                    // jeigu bombu yra 0:
+                        // atidaro visus aplinkinius langelius
+                        // rekursija "tesiam zaidima" ant tu atidarytu langeliu
+        }
+
+        // atnaujiname smile
     }
 
     generateBombs = ( exclude ) => {
@@ -73,10 +105,24 @@ class Minesweeper {
         }
 
         this.bombs = bombList;
+        
+        // sugeneruojame 2D bombu zemelapio masyva
+        this.map = []
 
-        this.bombs.forEach( cellId => {
-            this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('bomb');
-        });
+        for ( let r=0; r<this.board.rows; r++ ) {
+            this.map.push([]);
+            for ( let c=0; c<this.board.columns; c++ ) {
+                if ( bombList.indexOf( r * this.board.columns + c ) >= 0 ) {
+                    this.map[r].push(1);
+                } else {
+                    this.map[r].push(0);
+                }
+            }
+        }
+
+        // this.bombs.forEach( cellId => {
+        //     this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('bomb');
+        // });
     }
 
 }
