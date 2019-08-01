@@ -3,16 +3,19 @@
 class Minesweeper {
     constructor ( target ) {
         this.target = document.querySelector(target);
+        this.smile;
+
         this.board = {
-            rows: 10,
-            columns: 10
+            rows: 16,
+            columns: 16
         };
-        this.map = [];                  // pvz.: [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]
         this.bombCount = 24;
-        this.bombs = [];
         this.timer = 0;
+        this.map = [];                   // pvz.: [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]
+        this.bombs = [];
         this.gameStatus = 'start';       // start / in-progress / end
         this.gameEndType = null;         // happy / death
+
         this.html_template = {
             layout: `<header>
                         <div class="numbers bombs">099</div>
@@ -30,11 +33,20 @@ class Minesweeper {
     }
 
     init = () => {
+        // game reset
+        this.map = [];
+        this.bombs = [];
+        this.timer = 0;
+        this.gameStatus = 'start';
+        this.gameEndType = null;
+
         // target elemente uzsidedame "minesweeper" css clase
         this.target.classList.add('minesweeper');
         
         // idedam html.layout
         this.target.innerHTML = this.html_template.layout;
+
+        this.smile = this.target.querySelector('.status');
 
         // atnaujiname layout'o ploti (pagal langeliu eileje kieki)
         this.target.style.width = this.board.columns * this.cell.size + 20 + 'px';
@@ -52,43 +64,64 @@ class Minesweeper {
         this.target.querySelectorAll('section > .cell').forEach(cell => {
             cell.addEventListener('click', this.cellClick);
         });
+
+        // smile click event
+        this.smile.addEventListener('click', this.init);
     }
 
     cellClick = ( event ) => {
         const cellId = parseInt(event.target.dataset.id);
+        const x = cellId % this.board.columns;
+        const y = (cellId - x) / this.board.columns;
 
         if ( this.gameStatus === 'start' ) {
             this.gameStatus = 'in-progress';
             this.generateBombs( cellId );
         }
 
-        console.log( this.map );
-        
-
         if ( this.gameStatus === 'in-progress' ) {
-            // at tailangelis kuris jau buvo atidarytas
+            // ar tai langelis kuris jau buvo atidarytas
+            if ( this.map[y][x] === 2 ) {
                 // tai nedarom nieko
+                console.log('baigta');
+                return;
+            }
 
             // tikriname ar paspaudziau ant bombos
-                // taip
-                    // baigiam zaidima:
+            if ( this.map[y][x] === 1 ) {
+                // taip, baigiam zaidima:
+                    this.gameStatus = 'end';
                     // sustabdome laikrodi
                     // pakeiciame zaidimo statusa: end
                     // parodome/atidengiame visu bombu pozicijas
                     // parodome neteisingai pazymetas bombas (flags)
                     // pazymime bomba, per kuria pralaimejom
                     // gameEndType = death
-                // ne
-                    // tesiam zaidima:
+                    this.gameEndType = 'death';
+            } else {
+                // ne, tesiam zaidima:
                     // atidarome einamoji langeli (pridedame class="open")
+                    this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('open');
                     // suskaiciuoju kiek aplink sita langeli yra bombu
                     // i ta langeli irasau bombu skaiciu (pridedame class="n-[bombuSkaicius]")
                     // jeigu bombu yra 0:
                         // atidaro visus aplinkinius langelius
                         // rekursija "tesiam zaidima" ant tu atidarytu langeliu
+            }
         }
 
         // atnaujiname smile
+        if ( this.gameStatus === 'end' ) {
+            if ( this.gameEndType === null ) {
+                return console.error('Gavome nezinoma zaidimo pabaigos situacija.');
+            }
+            if ( this.gameEndType === 'happy' ) {
+                this.smile.textContent = 'B-)';
+            }
+            if ( this.gameEndType === 'death' ) {
+                this.smile.textContent = ':(';
+            }
+        }
     }
 
     generateBombs = ( exclude ) => {
@@ -120,9 +153,9 @@ class Minesweeper {
             }
         }
 
-        // this.bombs.forEach( cellId => {
-        //     this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('bomb');
-        // });
+        this.bombs.forEach( cellId => {
+            this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('bomb');
+        });
     }
 
 }

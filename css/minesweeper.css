@@ -57,6 +57,7 @@ body {
           box-shadow: 0 2px 4px #3338;
   -webkit-transform: rotate(90deg);
           transform: rotate(90deg);
+  cursor: pointer;
 }
 
 .minesweeper > section {
