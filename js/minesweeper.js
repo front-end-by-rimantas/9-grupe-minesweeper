@@ -10,12 +10,12 @@ class Minesweeper {
 
         // inner object logic / memory
         this.board = {
-            rows: 8,
-            columns: 8
+            rows: 20,
+            columns: 30
         };
         this.timer;
         this.seconds = 0;
-        this.bombCount = 24;
+        this.bombCount = 80;
         this.map = [];                   // pvz.: [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]
         this.bombs = [];
         this.gameStatus = 'start';       // start / in-progress / end
@@ -141,6 +141,15 @@ class Minesweeper {
             } else {
                 // ne, tesiam zaidima:
                     this.openCells( cellId );
+
+                    // jei atidaryti visi langeliai be bombu - zaidimas laimetas
+                    if ( this.isWin() ) {
+                        // reikia sustabdyti laikrodi
+                        clearInterval( this.timer );
+
+                        // pakeisti smile
+                        this.smile.textContent = 'B-)';
+                    }
             }
         }
 
@@ -169,6 +178,9 @@ class Minesweeper {
         const x = cellId % col;
         const y = (cellId - x) / col;
 
+        // this.map pazymime, kad langelis jau atidarytas
+        this.map[y][x] = 2;
+
         if ( y > 0 && x > 0 && this.map[y-1][x-1] === 1 ) { count++ }     // top left
         if ( y > 0 && this.map[y-1][x] === 1 ) { count++ }     // top
         if ( y > 0 && x < col && this.map[y-1][x+1] === 1 ) { count++ }     // top right
@@ -184,9 +196,17 @@ class Minesweeper {
         // jeigu bombu yra 0:
         if ( count === 0 ) {
             // atidaro visus aplinkinius langelius
-            
-            // rekursija "tesiam zaidima" ant tu atidarytu langeliu
-
+            for ( let cx=-1; cx<=1; cx++ ) {
+                for ( let cy=-1; cy<=1; cy++ ) {
+                    if ( x+cx >= 0 && x+cx < col &&
+                         y+cy >= 0 && y+cy <= row &&
+                         this.map[y+cy][x+cx] === 0 ) {
+                        // rekursija "tesiam zaidima" ant tu atidarytu langeliu
+                        const nextCellId = (y+cy) * col + x+cx;
+                        this.openCells( nextCellId );
+                    }
+                }
+            }
         }
     }
 
@@ -222,6 +242,20 @@ class Minesweeper {
         // this.bombs.forEach( cellId => {
         //     this.target.querySelector(`.cell[data-id="${cellId}"]`).classList.add('bomb');
         // });
+    }
+
+    isWin = () => {
+        let leftToOpen = 0;
+
+        this.map.forEach( row => {
+            
+            row.forEach( cell => {
+                if ( cell === 0 ) leftToOpen++;
+            })
+        })
+        console.log(this.map);
+        
+        return leftToOpen > 0 ? false : true;
     }
 
 }
